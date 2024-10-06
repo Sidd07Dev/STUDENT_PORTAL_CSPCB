@@ -50,14 +50,7 @@ const router = createBrowserRouter(
     <Route path='/' element={<Layout/>}>
      <Route path='' element={<Dashboard/>}/>
      <Route path='/:refreshToken/:accessToken' element={<AccessDenied/>}/>
-     <Route path='Students' element={<ManageStudents/>}/>
-     <Route path='Alumni' element={<ManageAlumni/>}/>
-     <Route path='Notice' element={<ManageNotices/>}/>
-     <Route path='Gallery' element={<ManageGallery/>}/>
-     <Route path='profile' element={<Profile/>}/>
-     <Route path='staff' element={<ManageStaff/>}/>
-     <Route path='settings' element={<ManageSettings/>}/>
-     <Route path='access' element={<AccessDenied/>}/>
+     
     </Route>
   )
 )
