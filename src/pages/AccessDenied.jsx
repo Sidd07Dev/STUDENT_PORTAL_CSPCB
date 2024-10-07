@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import axios from 'axios';
 import Cookies from 'js-cookie';
+import { domain } from '../backendtokens';
+
 
 const AccessDenied = () => {
   const [user, setUser] = useState(null);
@@ -51,7 +53,7 @@ if (tokens) {
 
        
         
-        const response = await axios.get(`http://localhost:8000/api/v1/students/getCurrentStudents/${id}/${accessToken}`);
+        const response = await axios.get(`${domain}v1/students/getCurrentStudents/${id}/${accessToken}`);
       
       
         
