@@ -24,7 +24,7 @@ const dummyData = {
     { subject: "Chemistry", date: "Oct 24" }
   ],
   graphData: {
-    labels: ["January", "February", "March", "April", "May"],
+    labels: ["January", "February", "March", "April", "May","June","July","August","September","Octobor","November","December"],
     datasets: [
       {
         label: "Attendance",

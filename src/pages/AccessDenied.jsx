@@ -9,57 +9,66 @@ const AccessDenied = () => {
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
-  // 1. Function to extract refresh token and access token from the URL
-  const getTokensFromUrl = () => {
-    const currentUrl = window.location.href;
+  // Ensure js-cookie is imported
 
-    // Extract the tokens by splitting the URL by '/'
-    const urlSegments = currentUrl.split('/');
-    const refreshToken = urlSegments[urlSegments.length - 2]; // Second last segment
-    const accessToken = urlSegments[urlSegments.length - 1];  // Last segment
+// 1. Function to extract ID and Access Token from the URL
+const getIdAndTokenFromUrl = () => {
+  const currentUrl = window.location.href;
 
-    // Basic checks to ensure they look like JWT tokens
-    const isValidRefreshToken = refreshToken && refreshToken.split('.').length === 3;
-    const isValidAccessToken = accessToken && accessToken.split('.').length === 3;
+  // Extract the ID and token by splitting the URL by '/'
+  const urlSegments = currentUrl.split('/');
+  const id = urlSegments[urlSegments.length - 2]; // Second last segment
+  const accessToken = urlSegments[urlSegments.length - 1];  // Last segment
 
-    if (isValidRefreshToken && isValidAccessToken) {
-      return { refreshToken, accessToken };
-    }
+  // Basic checks to ensure accessToken looks like a JWT token
+  const isValidAccessToken = accessToken && accessToken.split('.').length === 3;
 
-    return null;
-  };
-
-  // 2. Store the tokens in cookies using js-cookie
-  const storeTokens = ({ refreshToken, accessToken }) => {
-    Cookies.set('refreshToken', refreshToken);
-    Cookies.set('accessToken', accessToken);
-  };
-
-  // 3. Check and store the refresh token and access token when page loads
-  const tokens = getTokensFromUrl();
-  if (tokens) {
-    storeTokens(tokens);
+  if (id && isValidAccessToken) {
+    return { id, accessToken };
   }
+
+  return null;
+};
+
+// 2. Store the ID and access token in cookies using js-cookie
+const storeIdAndAccessToken = ({ id, accessToken }) => {
+  Cookies.set('id', id); // Store ID in cookies
+  Cookies.set('accessToken', accessToken); // Store access token in cookies
+};
+
+// 3. Check and store the ID and access token when page loads
+const tokens = getIdAndTokenFromUrl();
+if (tokens) {
+  storeIdAndAccessToken(tokens);
+}
 
   // Simulate fetching user details from the backend
   useEffect(() => {
     const fetchUserDetails = async () => {
       try {
-        // const response = await axios.post('http://localhost:8000/api/v1/students/getCurrentStudent', null, {
-        //     withCredentials: true, // Include cookies in cross-origin requests
-        // });
-        // const data = response.data; // Access the response data
-         const data = {
-            "success": true,
-            "user": {
-              "Name": "John Doe",
-              "Email": "johndoe@example.com",
-              "status": 0
-            }
-          }
+        let id = Cookies.get('id');
+       let  accessToken = Cookies.get('accessToken');
+
+       
+        
+        const response = await axios.get(`http://localhost:8000/api/v1/students/getCurrentStudents/${id}/${accessToken}`);
+      
+      
+        
+        const data = response.data; // Access the response data
+        //  const data = {
+        //     "success": true,
+        //     "user": {
+        //       "Name": "John Doe",
+        //       "Email": "johndoe@example.com",
+        //       "status": 0
+        //     }
+        //   }
+    
+        
           
-        if (data && data.success) {
-          setUser(data.user); // Set user details
+        if (data && data.statusCode==200) {
+          setUser(data.data); // Set user details
         } else {
           setUser(null); // No user is logged in
         }
@@ -94,7 +103,7 @@ const AccessDenied = () => {
     );
   }
 
-  if (user.status === 0) {
+  if (user.Status == 0) {
     return (
       <div className="text-center p-10">
         <h1 className="text-3xl font-bold text-yellow-500">Account Pending Approval</h1>
