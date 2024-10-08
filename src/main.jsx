@@ -1,5 +1,7 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
+import {store} from './store/store.js'; 
+import { Provider } from 'react-redux';
 
 import './index.css'
 import React from 'react';
@@ -10,13 +12,7 @@ import Layout from './Layout.jsx';
 import { Route } from 'react-router-dom';
 
 import Dashboard from './components/Dashboard.jsx';
-import ManageStudents from './pages/ManageStudents.jsx';
-import ManageAlumni from './pages/ManageAlumni.jsx';
-import ManageNotices from './pages/ManageNotices.jsx';
-import ManageGallery from './pages/ManageGallery.jsx';
-import Profile from './pages/Profile.jsx';
-import ManageStaff from './pages/ManageStaff.jsx';
-import ManageSettings from './pages/ManageSettings.jsx';
+
 import AccessDenied from './pages/AccessDenied.jsx';
 
 
@@ -48,7 +44,7 @@ import AccessDenied from './pages/AccessDenied.jsx';
 const router = createBrowserRouter(
   createRoutesFromElements(
     <Route path='/' element={<Layout/>}>
-     <Route path='' element={<Dashboard/>}/>
+     <Route path='' element={<AccessDenied/>}/>
      <Route path='/:refreshToken/:accessToken' element={<AccessDenied/>}/>
      
     </Route>
@@ -58,6 +54,8 @@ const router = createBrowserRouter(
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
+   <Provider store={store}> 
    <RouterProvider router={router} />
+   </Provider>
   </StrictMode>,
 )

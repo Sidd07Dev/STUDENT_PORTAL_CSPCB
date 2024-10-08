@@ -14,7 +14,12 @@ const Navbar = () => {
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center">
             <div className="flex-shrink-0">
-              <span className='text-clip'>CSPCB</span>
+            <div className="inline-flex items-center space-x-2">
+          <span>
+           <img src="https://res.cloudinary.com/codebysidd/image/upload/v1726199679/PrevQue/ikuol4bmcxnmxuvxf5jj.jpg" alt="" className='rounded-lg h-10 '/>
+          </span>
+         
+        </div>
             </div>
             {/* Desktop Menu */}
             <div className="hidden md:block">
