@@ -13,7 +13,8 @@ const AccessDenied = () => {
   const [error, setError] = useState(null);  // Track errors
   const navigate = useNavigate();
   const dispatch = useDispatch();  // Initialize useDispatch
-  const user = useSelector((state) => state.auth.user);  // Get user from Redux state
+ // Get user from Redux state
+ 
 
   // Function to extract ID and Access Token from the URL
   const getIdAndTokenFromUrl = () => {
@@ -40,29 +41,33 @@ const AccessDenied = () => {
   // Fetch user details from the backend
   useEffect(() => {
     const fetchUserDetails = async () => {
+      const id = Cookies.get('id');
+      const accessToken = Cookies.get('accessToken');
+      
       try {
-        const id = Cookies.get('id');
-        const accessToken = Cookies.get('accessToken');
         const response = await axios.get(`${domain}v1/students/getCurrentStudents/${id}/${accessToken}`);
-        const data = response.data;
+        const { data } = response;
         
-        if (data && data.statusCode === 200) {
-          dispatch(setUser(data.data));  // Store user data in Redux
+        if (data.statusCode === 200) {
+          dispatch(setUser(data.data));  // Ensure proper user data structure
         } else {
           setError("User not found");
-          toast.error("User not found. Please login to continue.");
+          toast.error("User not found. Please login.");
         }
       } catch (error) {
-        console.error("Error fetching user details", error);
         setError("Failed to fetch user details");
         toast.error("Failed to fetch user details.");
       } finally {
-        setLoading(false);  // Stop loading
+        setLoading(false);
       }
     };
-
+  
     fetchUserDetails();
   }, [dispatch]);
+  
+  const user = useSelector((state) => state.auth.user); 
+
+  console.log('User in ResultsPage:', user);
 
   if (loading) {
    return  <div className="flex justify-center items-center min-h-screen bg-gray-100">
