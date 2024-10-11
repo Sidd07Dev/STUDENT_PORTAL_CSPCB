@@ -63,7 +63,7 @@ const AccessDenied = () => {
     };
   
     fetchUserDetails();
-  }, [dispatch]);
+  }, [dispatch],navigate);
   
   const user = useSelector((state) => state.auth.user); 
 

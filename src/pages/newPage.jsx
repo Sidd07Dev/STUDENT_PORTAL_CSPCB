@@ -10,11 +10,8 @@ const ResultsPage = () => {
   const [results, setResults] = useState(null);
   const [error, setError] = useState(null);
   
-  // Get user from Redux store
-  const user = useSelector((state) => state.auth.user); // Accessing user data from Redux
-
-  // In AccessDenied
- // In ResultsPage
+  // Get user ID from cookies
+  const userId = Cookies.get('id');
 
   // Fetch results from the backend
   useEffect(() => {
@@ -23,7 +20,7 @@ const ResultsPage = () => {
       setError(null);
 
       try {
-        const response = await axios.get(`${domain}v1/students/getResults/${user.id}`); // Using user.id here
+        const response = await axios.get(`${domain}v1/students/getResults/${userId}`);
         const { data } = response;
 
         if (data.statusCode === 200) {
@@ -40,13 +37,13 @@ const ResultsPage = () => {
       }
     };
 
-    if (user && user.id) {
+    if (userId) {
       fetchResults();
     } else {
-      setError("User not found.");
+      setError("User ID not found in cookies.");
       setLoading(false);
     }
-  }, [user]);
+  }, [userId]);
 
   // Loading state
   if (loading) {

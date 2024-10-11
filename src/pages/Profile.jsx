@@ -1,135 +1,93 @@
-import { Edit, Lock, Save } from 'lucide-react';
-import { useState } from 'react';
-import Modal from '../components/Modal';
+import React, { useState ,useEffect} from 'react';
+import { FaEdit, FaKey } from 'react-icons/fa';
+import EditProfileModal from '../components/EditProfileModal';
+import ChangePasswordModal from '../components/ChangePasswordModal';
+import { ToastContainer } from 'react-toastify';
+import Cookies from 'js-cookie';
+import { toast } from 'react-toastify';
+import axios from 'axios';
+import { domain } from '../backendtokens';
+
 
 
 const Profile = () => {
-  const [isEditing, setIsEditing] = useState(false);
-  const [profile, setProfile] = useState({
-    name: 'John Doe',
-    email: 'johndoe@example.com',
-    image: 'https://via.placeholder.com/150',
-    college: 'University of Example',
-    rollNumber: '123456',
-    // Add more profile fields as needed
-  });
+const [userData,setUserData] = useState({});
+const [Loading,setLoading] = useState(true);
+const [error, setError] = useState(null); 
+  useEffect(() => {
+    const fetchUserDetails = async () => {
+      const id = Cookies.get('id');
+      const accessToken = Cookies.get('accessToken');
+      
+      try {
+        const response = await axios.get(`${domain}v1/students/getCurrentStudents/${id}/${accessToken}`);
+        const { data } = response;
+        
+        if (data.statusCode === 200) {
+          console.log(data);
+          
+          setUserData(data.data)  // Ensure proper user data structure
+        } else {
+          setError("User not found");
+          toast.error("User not found. Please login.");
+        }
+      } catch (error) {
+        setError("Failed to fetch user details");
+        toast.error("Failed to fetch user details."+error);
+      } finally {
+        setLoading(false);
+      }
+    };
+  
+    fetchUserDetails();
+  }, []);
 
-  const [formData, setFormData] = useState({ ...profile });
-  const [showModal, setShowModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [showPasswordModal, setShowPasswordModal] = useState(false);
 
-  const handleEditToggle = () => {
-    setIsEditing(!isEditing);
-    if (isEditing) {
-      setProfile({ ...formData });
-    }
-  };
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
-  };
-
-  const handlePasswordChange = () => {
-    console.log('Change password');
-    // Implement change password functionality
-  };
+  const handleEditClick = () => setShowEditModal(true);
+  const handlePasswordClick = () => setShowPasswordModal(true);
 
   return (
-    <div className="min-h-screen bg-[#F4F4F4] p-6 flex flex-col items-center">
-      {/* Profile Card */}
-      <div className="bg-white p-6 rounded-xl shadow-lg w-full max-w-4xl flex flex-col md:flex-row items-center md:items-start">
-        <img
-          src={profile.image}
-          alt="Profile"
-          className="w-32 h-32 object-cover rounded-full border-4 border-[#00A8FF] mb-4 md:mb-0"
-        />
-        <div className="flex flex-col md:ml-6 text-center md:text-left">
-          <h1 className="text-3xl font-bold text-[#001F3F] mb-2">{profile.name}</h1>
-          <p className="text-gray-600 mb-4">{profile.email}</p>
-          <button
-            onClick={() => setShowModal(true)}
-            className="bg-[#00A8FF] text-white py-2 px-4 rounded-lg flex items-center justify-center shadow-md hover:bg-[#007ACC] transition duration-300 ease-in-out"
-          >
-            <Edit className="h-5 w-5 mr-2" />
-            Edit Profile
-          </button>
-          <button
-            onClick={handlePasswordChange}
-            className="bg-gray-300 text-gray-700 py-2 px-4 rounded-lg flex items-center justify-center shadow-md hover:bg-gray-400 mt-2 transition duration-300 ease-in-out"
-          >
-            <Lock className="h-5 w-5 mr-2" />
-            Change Password
-          </button>
-        </div>
-      </div>
+    <div className="flex justify-center items-center min-h-screen bg-gradient-to-r from-purple-500 via-blue-500 to-pink-500 p-10">
+        <ToastContainer />
+      <div className="bg-white bg-opacity-30 backdrop-blur-lg shadow-2xl rounded-2xl p-6 w-96 relative border border-opacity-30 border-white">
+        <div className="text-center">
+          <div className="w-24 h-24 mx-auto rounded-full overflow-hidden mb-4 border-4 border-gradient-to-r from-purple-400 to-blue-400 p-1">
+            <img src={userData.ProfileImage} alt={userData.Name} className="w-full h-full object-cover rounded-full" />
+          </div>
+          <h2 className="text-3xl font-extrabold text-white">{userData.Name}</h2>
+          <p className="text-gray-300 mt-2">Roll No: {userData.CollegeRollNo}</p>
+          <p className="text-gray-300">Email: {userData.Email}</p>
+          <p className="text-gray-300">Gender: {userData.Gender}</p>
+          <p className="text-gray-300">DOA: {new Date(userData.DOA).toLocaleDateString()}</p>
 
-      {/* Modal for Editing Profile */}
-      {showModal && (
-        <Modal onClose={() => setShowModal(false)}>
-          <div className="bg-white p-6 rounded-xl shadow-lg w-full max-w-lg mx-auto">
-            <h2 className="text-2xl font-semibold text-[#001F3F] mb-4">Edit Profile</h2>
-            <div className="flex items-center mb-4">
-              <img
-                src={formData.image}
-                alt="Profile"
-                className="w-24 h-24 object-cover rounded-full border-4 border-[#00A8FF] mr-4"
-              />
-              <input
-                type="file"
-                className="cursor-pointer"
-                onChange={(e) => setFormData({ ...formData, image: URL.createObjectURL(e.target.files[0]) })}
-              />
-            </div>
-            <div className="mb-4">
-              <label className="block text-gray-700 font-semibold mb-2">Name</label>
-              <input
-                type="text"
-                name="name"
-                value={formData.name}
-                onChange={handleChange}
-                className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#00A8FF] transition duration-300 ease-in-out"
-              />
-            </div>
-            <div className="mb-4">
-              <label className="block text-gray-700 font-semibold mb-2">Email</label>
-              <input
-                type="email"
-                name="email"
-                value={formData.email}
-                onChange={handleChange}
-                className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#00A8FF] transition duration-300 ease-in-out"
-              />
-            </div>
-            <div className="mb-4">
-              <label className="block text-gray-700 font-semibold mb-2">College</label>
-              <input
-                type="text"
-                name="college"
-                value={formData.college}
-                onChange={handleChange}
-                className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#00A8FF] transition duration-300 ease-in-out"
-              />
-            </div>
-            <div className="mb-4">
-              <label className="block text-gray-700 font-semibold mb-2">Roll Number</label>
-              <input
-                type="text"
-                name="rollNumber"
-                value={formData.rollNumber}
-                onChange={handleChange}
-                className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#00A8FF] transition duration-300 ease-in-out"
-              />
-            </div>
-            <button
-              onClick={handleEditToggle}
-              className="bg-green-500 text-white py-2 px-4 rounded-lg flex items-center justify-center shadow-md hover:bg-green-600 transition duration-300 ease-in-out"
+          {/* Edit & Change Password Icons */}
+          <div className="flex justify-center mt-6 space-x-4">
+            <button 
+              onClick={handleEditClick} 
+              className="flex items-center bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-5 py-2 rounded-full shadow-lg hover:scale-105 transition transform duration-300 ease-in-out"
             >
-              <Save className="h-5 w-5 mr-2" />
-              Save Changes
+              <FaEdit className="mr-2" /> Edit Profile
+            </button>
+            <button 
+              onClick={handlePasswordClick} 
+              className="flex items-center bg-gradient-to-r from-blue-600 to-cyan-600 text-white px-5 py-2 rounded-full shadow-lg hover:scale-105 transition transform duration-300 ease-in-out"
+            >
+              <FaKey className="mr-2" /> Change Password
             </button>
           </div>
-        </Modal>
-      )}
+        </div>
+
+        {/* Modals */}
+        {showEditModal && (
+          <EditProfileModal user={userData} onClose={() => setShowEditModal(false)} />
+        )}
+        {showPasswordModal && (
+          <ChangePasswordModal onClose={() => setShowPasswordModal(false)} />
+        )}
+       
+      </div>
     </div>
   );
 };

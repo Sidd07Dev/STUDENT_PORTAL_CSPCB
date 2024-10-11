@@ -117,7 +117,7 @@ const Dashboard = ({ Data }) => {
               </div>
               <div className="flex items-center justify-between">
                 <span className="font-semibold">DOA:</span>
-                <span>{DOA}</span>
+                <span>{new Date(DOA).toLocaleDateString()}</span>
               </div>
               <div className="flex items-center justify-between">
                 <span className="font-semibold">Gender:</span>

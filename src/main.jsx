@@ -20,6 +20,7 @@ import AccessDenied from './pages/AccessDenied.jsx';
 
 import ResultsPage from './pages/ResultsPage.jsx';
 import Courses from './pages/Courses.jsx';
+import Profile from './pages/Profile.jsx';
 
 
 // const router = createBrowserRouter([
@@ -56,6 +57,7 @@ const router = createBrowserRouter(
      <Route path='/:refreshToken/:accessToken' element={<AccessDenied/>}/>
      <Route path='results' element={<ResultsPage/>}/>
      <Route path='courses' element={<Courses/>}/>
+     <Route path='profile' element={<Profile/>}/>
     </Route>
   )
 )
