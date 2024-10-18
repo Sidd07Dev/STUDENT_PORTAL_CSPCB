@@ -21,6 +21,7 @@ import AccessDenied from './pages/AccessDenied.jsx';
 import ResultsPage from './pages/ResultsPage.jsx';
 import Courses from './pages/Courses.jsx';
 import Profile from './pages/Profile.jsx';
+import QuestionPapers from './pages/QuestionPapers.jsx';
 
 
 // const router = createBrowserRouter([
@@ -58,6 +59,7 @@ const router = createBrowserRouter(
      <Route path='results' element={<ResultsPage/>}/>
      <Route path='courses' element={<Courses/>}/>
      <Route path='profile' element={<Profile/>}/>
+     <Route path='Questions' element={<QuestionPapers/>}/>
     </Route>
   )
 )

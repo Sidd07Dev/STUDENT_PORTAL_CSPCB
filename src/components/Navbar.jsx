@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { NavLink } from 'react-router-dom';
-import { Home, User, GraduationCap, ClipboardList, LogOut, Menu } from 'lucide-react';
+import { Home, User, GraduationCap, ClipboardList, LogOut, Menu ,FileText} from 'lucide-react';
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -24,6 +24,10 @@ const Navbar = () => {
       name: 'Results',
       to: '/results',
       icon: <ClipboardList className="mr-2 h-5 w-5" />,
+    },  {
+      name: 'Questions',
+      to: '/questions',
+      icon: <FileText className="mr-2 h-5 w-5" />,
     },
     {
       name: 'Profile',
