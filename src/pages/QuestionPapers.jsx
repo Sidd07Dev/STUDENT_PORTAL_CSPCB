@@ -2,48 +2,40 @@ import React, { useState, useEffect } from 'react';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { ChevronDown, ChevronUp, CheckCircle, Download, FileText, Calendar } from 'lucide-react';
+import axios from 'axios';
+import { domain } from '../backendtokens';
 
 // Updated flat data structure for question papers
-const getQuestionPapers = () => {
-  return [
-    { year: 2023, semester: 1, name: 'Mathematics I', filePath: '/downloads/math1.pdf' },
-    { year: 2023, semester: 1, name: 'Physics I', filePath: '/downloads/physics1.pdf' },
-    { year: 2023, semester: 1, name: 'Chemistry I', filePath: '/downloads/chem1.pdf' },
-    { year: 2023, semester: 1, name: 'Computer Science I', filePath: '/downloads/cs1.pdf' },
-    { year: 2023, semester: 3, name: 'Mathematics II', filePath: '/downloads/math2.pdf' },
-    { year: 2023, semester: 3, name: 'Physics II', filePath: '/downloads/physics2.pdf' },
-    { year: 2023, semester: 3, name: 'Chemistry II', filePath: '/downloads/chem2.pdf' },
-    { year: 2023, semester: 3, name: 'Computer Science II', filePath: '/downloads/cs2.pdf' },
-    { year: 2023, semester: 4, name: 'Mathematics II', filePath: '/downloads/math2.pdf' },
-    { year: 2023, semester: 4, name: 'Physics II', filePath: '/downloads/physics2.pdf' },
-    { year: 2023, semester: 4, name: 'Chemistry II', filePath: '/downloads/chem2.pdf' },
-    { year: 2023, semester: 4, name: 'Computer Science II', filePath: '/downloads/cs2.pdf' },
-    { year: 2023, semester: 5, name: 'Mathematics II', filePath: '/downloads/math2.pdf' },
-    { year: 2023, semester: 5, name: 'Physics II', filePath: '/downloads/physics2.pdf' },
-    { year: 2023, semester: 5, name: 'Chemistry II', filePath: '/downloads/chem2.pdf' },
-    { year: 2023, semester: 5, name: 'Computer Science II', filePath: '/downloads/cs2.pdf' },
-    { year: 2023, semester: 6, name: 'Mathematics II', filePath: '/downloads/math2.pdf' },
-    { year: 2023, semester: 6, name: 'Physics II', filePath: '/downloads/physics2.pdf' },
-    { year: 2023, semester: 6, name: 'Chemistry II', filePath: '/downloads/chem2.pdf' },
-    { year: 2023, semester: 6, name: 'Computer Science II', filePath: '/downloads/cs2.pdf' },
-    { year: 2022, semester: 1, name: 'Advanced Math', filePath: '/downloads/advanced_math.pdf' },
-    { year: 2022, semester: 1, name: 'Data Structures', filePath: '/downloads/data_structures.pdf' },
-    { year: 2022, semester: 1, name: 'Algorithms', filePath: '/downloads/algorithms.pdf' },
-    { year: 2022, semester: 1, name: 'Operating Systems', filePath: '/downloads/os.pdf' },
-    { year: 2022, semester: 2, name: 'Operating Systems', filePath: '/downloads/os.pdf' },
-  ];
-};
+
 
 const QuestionPapers = () => {
   const [data, setData] = useState([]);
-  const [selectedYear, setSelectedYear] = useState(null);
-  const [selectedSemester, setSelectedSemester] = useState(null);
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [loading,setLoading] = useState(true);
+const url = `${domain}v1/questions/get`
+  const fetchPapers = () => {
+    setLoading(true);
+    axios
+      .get(url)
+      .then((response) => {
+        setData(response.data.data);
+        console.log(response.data.data);
+        toast.success('Papers fetching successfully');
+        setLoading(false);
+      })
+      .catch(() => {
+        toast.error('Error fetching Papers');
+        setLoading(false);
+      });
+  };
 
   useEffect(() => {
-    const papers = getQuestionPapers();
-    setData(papers);
+    fetchPapers();
   }, []);
+  const [selectedYear, setSelectedYear] = useState(2021);
+  const [selectedSemester, setSelectedSemester] = useState(1);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+
+  
 
   const handleYearChange = (year) => {
     setSelectedYear(year);
@@ -60,16 +52,42 @@ const QuestionPapers = () => {
     });
   };
 
-  const handleDownload = (filePath, paperName) => {
-    toast.info(`Downloading: ${paperName}`, {
-      icon: <Download size={20} className="text-blue-500" />,
-    });
-    // Simulate download action
-    window.location.href = filePath;
+  // const handleDownload = (filePath, paperName) => {
+  //   toast.info(`Downloading: ${paperName}`, {
+  //     icon: <Download size={20} className="text-blue-500" />,
+  //   });
+  //   // Simulate download action
+  //   window.location.href = filePath;
+  // };
+  const handleDownload = async (filePath, paperName) => {
+    try {
+      toast.info(`Downloading: ${paperName}`, {
+        icon: <Download size={20} className="text-blue-500" />,
+      });
+  
+      const response = await fetch(filePath);
+      if (!response.ok) {
+        throw new Error('Failed to download file');
+      }
+  
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = paperName;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      toast.error('Error downloading the file');
+    }
   };
+  
 
   // Extract unique years and semesters for selection
   const uniqueYears = [...new Set(data.map((paper) => paper.year))];
+ 
   const uniqueSemesters = selectedYear ? [...new Set(data.filter(paper => paper.year === selectedYear).map(paper => paper.semester))] : [];
 
   return (
@@ -148,11 +166,11 @@ const QuestionPapers = () => {
                 >
                   <div className="flex items-center space-x-3 mb-4">
                     <FileText size={24} className="text-purple-600" />
-                    <h4 className="text-xl font-bold text-gray-800">{paper.name}</h4>
+                    <h4 className="text-xl font-bold text-gray-800">{paper.title}</h4>
                   </div>
                   <button
                     className="mt-auto flex items-center space-x-2 bg-gradient-to-r from-purple-600 to-pink-500 text-white py-2 px-4 rounded-xl hover:from-purple-700 hover:to-pink-600 transition-transform duration-300 transform hover:scale-110 shadow-md"
-                    onClick={() => handleDownload(paper.filePath, paper.name)}
+                    onClick={() => handleDownload(paper.filePath, paper.title)}
                   >
                     <Download size={20} />
                     <span>Download</span>
