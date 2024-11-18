@@ -61,6 +61,11 @@ const url = `${domain}v1/questions/get`
   // };
   const handleDownload = async (filePath, paperName) => {
     try {
+      // Convert http:// to https:// if needed
+      if (filePath.startsWith('http://')) {
+        filePath = filePath.replace('http://', 'https://');
+      }
+  
       toast.info(`Downloading: ${paperName}`, {
         icon: <Download size={20} className="text-blue-500" />,
       });
@@ -83,6 +88,7 @@ const url = `${domain}v1/questions/get`
       toast.error('Error downloading the file');
     }
   };
+  
   
 
   // Extract unique years and semesters for selection
