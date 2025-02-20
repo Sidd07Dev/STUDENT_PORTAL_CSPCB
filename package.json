@@ -17,6 +17,7 @@
     "chart.js": "^4.4.4",
     "dayjs": "^1.11.13",
     "dotenv": "^16.4.5",
+    "face-api.js": "^0.22.2",
     "file-saver": "^2.0.5",
     "js-cookie": "^3.0.5",
     "jspdf": "^2.5.2",

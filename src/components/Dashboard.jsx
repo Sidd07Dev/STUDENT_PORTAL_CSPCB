@@ -108,53 +108,85 @@ const Dashboard = ({ Data }) => {
       setIsLoggedIn(!!localStorage.getItem("loginTime") && !localStorage.getItem("logoutTime"));
     }
   }, []);
-
-  // Capture Image from Webcam
   const captureImage = async () => {
-    return new Promise<string | null>((resolve) => {
-      navigator.mediaDevices
-        .getUserMedia({ video: true })
-        .then((stream) => {
-          const video = document.createElement("video");
-          video.srcObject = stream;
-          video.play();
-          setTimeout(() => {
-            const canvas = document.createElement("canvas");
-            canvas.width = 320;
-            canvas.height = 240;
-            const ctx = canvas.getContext("2d");
-            if (ctx) {
-              ctx.drawImage(video, 0, 0, 320, 240);
-              const imageData = canvas.toDataURL("image/png");
-              resolve(imageData);
-            } else {
-              resolve(null);
-            }
-            stream.getTracks().forEach((track) => track.stop()); // Stop the camera
-          }, 1000);
-        })
-        .catch(() => resolve(null));
-    });
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+      const video = document.createElement("video");
+      video.srcObject = stream;
+      document.body.appendChild(video);
+      video.play();
+  
+      // Wait for video feed to load
+      await new Promise((res) => setTimeout(res, 1000));
+  
+      let faceDetected = false;
+      while (!faceDetected) {
+        faceDetected = await detectFace(video);
+        await new Promise((res) => setTimeout(res, 500)); // Check every 500ms
+      }
+  
+      // Capture image when face detected
+      const canvas = document.createElement("canvas");
+      canvas.width = 320;
+      canvas.height = 240;
+      const ctx = canvas.getContext("2d");
+  
+      if (ctx) {
+        ctx.drawImage(video, 0, 0, 320, 240);
+        stream.getTracks().forEach((track) => track.stop()); // Stop camera
+        video.remove(); // Remove video element from DOM
+        return canvas.toDataURL("image/png");
+      }
+  
+      return null;
+    } catch {
+      return null;
+    }
   };
+  
+  // Function to check if a face-like structure is present in the frame
+  const detectFace = async (video) => {
+    const canvas = document.createElement("canvas");
+    canvas.width = 320;
+    canvas.height = 240;
+    const ctx = canvas.getContext("2d");
+  
+    if (!ctx) return false;
+  
+    ctx.drawImage(video, 0, 0, 320, 240);
+    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    const pixels = imageData.data;
+  
+    let skinPixels = 0;
+    let totalPixels = pixels.length / 4;
+  
+    // Loop through pixels to check skin-tone-like colors
+    for (let i = 0; i < pixels.length; i += 4) {
+      const r = pixels[i];
+      const g = pixels[i + 1];
+      const b = pixels[i + 2];
+  
+      // Check if the pixel color falls in the skin-tone range
+      if (r > 95 && g > 40 && g < 100 && b < 150 && Math.abs(r - g) > 15) {
+        skinPixels++;
+      }
+    }
+  
+    // If enough skin-tone pixels are detected, assume a face is present
+    return skinPixels / totalPixels > 0.05;
+  };
+  
+  
 
   // Get User Location
-  const getUserLocation = () => {
-    return new Promise<{ lat: number, long: number } | null>((resolve) => {
-      if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(
-          (position) => {
-            resolve({
-              lat: position.coords.latitude,
-              long: position.coords.longitude,
-            });
-          },
-          () => resolve(null)
-        );
-      } else {
-        resolve(null);
-      }
+  const getUserLocation = () =>
+    new Promise((resolve) => {
+      navigator.geolocation?.getCurrentPosition(
+        ({ coords }) => resolve({ lat: coords.latitude, long: coords.longitude }),
+        () => resolve(null)
+      );
     });
-  };
+  
 
   // Handle Login
   const handleLogin = async () => {
@@ -178,7 +210,7 @@ const Dashboard = ({ Data }) => {
     const image = await captureImage();
     const location = await getUserLocation();
 
-    setIsLoggedIn(false);
+    setIsLoggedIn(true);
     setLogoutTime(time);
     setUserImage(image);
     setUserLocation(location);
