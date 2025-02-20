@@ -11,9 +11,11 @@
   },
   "dependencies": {
     "@heroicons/react": "^1.0.6",
+    "@radix-ui/react-slot": "^1.1.2",
     "@reduxjs/toolkit": "^2.2.7",
     "axios": "^1.7.7",
     "chart.js": "^4.4.4",
+    "dayjs": "^1.11.13",
     "dotenv": "^16.4.5",
     "file-saver": "^2.0.5",
     "js-cookie": "^3.0.5",
