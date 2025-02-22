@@ -44,6 +44,8 @@ const Dashboard = ({ Data }) => {
           `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current_weather=true`
         );
         setWeather(response.data.current_weather);
+       
+        
         setLoading(false);
       } catch (error) {
         console.error('Error fetching weather data:', error);
@@ -85,6 +87,7 @@ const Dashboard = ({ Data }) => {
   const [loginTime, setLoginTime] = useState("");
   const [logoutTime, setLogoutTime] = useState("");
   const [userImage, setUserImage] = useState("");
+  const [userImageOut, setUserImageOut] = useState("");
   const [userLocation, setUserLocation] = useState({ lat: '', long: '' });
 
   useEffect(() => {
@@ -103,9 +106,10 @@ const Dashboard = ({ Data }) => {
       setLoginTime(localStorage.getItem("loginTime"));
       setLogoutTime(localStorage.getItem("logoutTime"));
       setUserImage(localStorage.getItem("userImage"));
+      setUserImageOut(localStorage.getItem("userImageOut"));
       const storedLocation = localStorage.getItem("userLocation");
       if (storedLocation) setUserLocation(JSON.parse(storedLocation));
-      setIsLoggedIn(!!localStorage.getItem("loginTime") && !localStorage.getItem("logoutTime"));
+      setIsLoggedIn(!!localStorage.getItem("loginTime"));
     }
   }, []);
   const captureImage = async () => {
@@ -212,11 +216,11 @@ const Dashboard = ({ Data }) => {
 
     setIsLoggedIn(true);
     setLogoutTime(time);
-    setUserImage(image);
+    setUserImageOut(image);
     setUserLocation(location);
 
     localStorage.setItem("logoutTime", time);
-    if (image) localStorage.setItem("userImage", image);
+    if (image) localStorage.setItem("userImageOut", image);
     if (location) localStorage.setItem("userLocation", JSON.stringify(location));
   };
 
@@ -275,8 +279,8 @@ const Dashboard = ({ Data }) => {
           </div>
         </div>
       </div>
-      <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-6">
-      <div className="bg-white p-6 rounded-2xl shadow-lg w-96 text-center border border-gray-200">
+      <div className="w-full max-w-lg p-6 mt-8 bg-white text-gray-800 rounded-3xl shadow-lg transform hover:scale-105 transition-transform duration-300 ease-in-out relative group overflow-hidden">
+      <div className="bg-white p-6 rounded-2xl shadow-lg w-96 text-center border border-gray-200 w-full">
         <h1 className="text-2xl font-bold text-gray-800 mb-4">Attendance System</h1>
 
         {!isLoggedIn ? (
@@ -302,11 +306,17 @@ const Dashboard = ({ Data }) => {
 
         {/* Display User Image */}
         {userImage && (
-          <div className="mt-4">
-            <h2 className="text-sm font-semibold text-gray-700">Captured Image:</h2>
-            <img src={userImage} alt="User" className="w-32 h-32 mx-auto rounded-lg border border-gray-300 mt-2" />
-          </div>
-        )}
+  <div className="mt-4 flex w-full justify-center space-x-4">
+    <div className="text-center">
+      <p className="text-sm text-gray-600 font-semibold">Login</p>
+      <img src={userImage} alt="LogIn" className="w-32 h-32 rounded-lg border border-gray-300 mt-2" />
+    </div>
+    <div className="text-center">
+      <p className="text-sm text-gray-600 font-semibold">Logout</p>
+      <img src={userImageOut} alt="LogOut" className="w-32 h-32 rounded-lg border border-gray-300 mt-2" />
+    </div>
+  </div>
+)}
 
         {/* Display User Location */}
         {userLocation && (
