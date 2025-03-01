@@ -22,6 +22,7 @@ import ResultsPage from './pages/ResultsPage.jsx';
 import Courses from './pages/Courses.jsx';
 import Profile from './pages/Profile.jsx';
 import QuestionPapers from './pages/QuestionPapers.jsx';
+import AttendancePage from './pages/AttendancePage.jsx';
 
 
 // const router = createBrowserRouter([
@@ -60,6 +61,7 @@ const router = createBrowserRouter(
      <Route path='courses' element={<Courses/>}/>
      <Route path='profile' element={<Profile/>}/>
      <Route path='Questions' element={<QuestionPapers/>}/>
+     <Route path='Attendance' element={<AttendancePage/>}/>
     </Route>
   )
 )
